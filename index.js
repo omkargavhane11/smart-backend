@@ -56,7 +56,9 @@ const s3Client = new S3Client({
     region: bucketRegion
 })
 
-
+app.get("/", (req, res) => {
+    res.send("Smart ready to serve its customers 😊")
+})
 
 // routes
 app.get('/products', async (req, res) => {
