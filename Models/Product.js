@@ -28,6 +28,10 @@ const productSchema = new mongoose.Schema({
     unit: {
         type: String,
         default: null
+    },
+    category: {
+        type: String,
+        default: null
     }
 },
     { timestamps: true }
