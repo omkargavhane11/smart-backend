@@ -291,6 +291,7 @@ app.post("/api/order", async (req, res) => {
     }
 })
 
+// get all orders
 app.get("/api/order", async (req, res) => {
     try {
         const userOrders = await Order.find({});
@@ -301,4 +302,19 @@ app.get("/api/order", async (req, res) => {
         res.send(err)
     }
 })
+
+// get user specific orders
+app.get("/api/order/:id", async (req, res) => {
+    try {
+        const userOrders = await Order.find({ user: req.params.id });
+        res.send(userOrders)
+    } catch (err) {
+        res.send(err)
+    }
+})
+
+
+
+
+
 app.listen(PORT, () => console.log(`Hacksprint Server started at port ${PORT} 🚀`));
