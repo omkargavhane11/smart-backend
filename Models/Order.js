@@ -30,6 +30,10 @@ const orderSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    isCancelled: {
+        type: Boolean,
+        default: false,
+    }
 
 
 },
