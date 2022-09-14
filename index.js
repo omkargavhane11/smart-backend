@@ -9,7 +9,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Razorpay from "razorpay";
 import Order from './Models/Order.js';
-import { log } from 'console';
+import User from "./Models/userModel.js";
 
 // getting access to files in ".env" folder
 dotenv.config();
@@ -60,6 +60,58 @@ app.get("/", (req, res) => {
     res.send("Smart ready to serve its customers 😊")
 })
 
+// user
+app.post("/user/register", async (req, res) => {
+    try {
+        const newUser = await User.create(req.body);
+        res.send({ msg: "success" })
+        // console.log(req.body)
+    } catch (error) {
+        res.send({ msg: "Error creating user" });
+    }
+})
+
+// get all users
+app.get("/users", async (req, res) => {
+    try {
+        const getAll = await User.find({}, { password: 0 });
+        res.send(getAll)
+    } catch (error) {
+        res.send({ msg: error });
+    }
+})
+
+// get user by ID
+app.get("/user/:id", async (req, res) => {
+    try {
+        const getUser = await User.find({ _id: req.params.id }, { password: 0 });
+        res.send(getUser)
+    } catch (error) {
+        res.send({ msg: error });
+    }
+})
+
+app.post("/login", async (req, res) => {
+    try {
+        const findEmail = await User.findOne({ email: req.body.email });
+
+        if (findEmail) {
+            if (findEmail.password === req.body.password) {
+                const { password, ...others } = findEmail._doc;
+                res.send({ msg: "success", user: others })
+            } else {
+                res.send({ msg: "Invalid credentials" });
+            }
+        } else {
+            res.send({ msg: "Invalid credentials" });
+        }
+    } catch (error) {
+        res.send({ error: error.message });
+    }
+
+})
+
+
 // routes
 app.get('/products', async (req, res) => {
     try {
@@ -79,8 +131,9 @@ app.get('/products', async (req, res) => {
     } catch (error) {
         res.send({ error: error.message })
     }
-
 })
+
+
 
 // get single product data
 app.get('/products/:id', async (req, res) => {
