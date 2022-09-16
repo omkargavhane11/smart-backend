@@ -91,6 +91,16 @@ app.get("/user/:id", async (req, res) => {
     }
 })
 
+// edit user details by ID
+app.put("/user/:id", async (req, res) => {
+    try {
+        const getUser = await User.updateOne({ _id: req.params.id }, { $set: req.body });
+        res.send(getUser)
+    } catch (error) {
+        res.send({ msg: error });
+    }
+})
+
 app.post("/login", async (req, res) => {
     try {
         const findEmail = await User.findOne({ email: req.body.email });
@@ -173,7 +183,7 @@ app.post("/products", upload.single('image'), async (req, res) => {
         await s3Client.send(command)
 
         const newProduct = await Product.create({
-            image: uniqueFileName,
+            image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
             description: req.body.description,
             price: req.body.price,
             quantity: req.body.quantity,
