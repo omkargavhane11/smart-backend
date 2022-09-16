@@ -127,15 +127,15 @@ app.get('/products', async (req, res) => {
     try {
         let products = await Product.find();
 
-        for (let product of products) {
-            const getObjectParams = {
-                Bucket: bucketName,
-                Key: product.image
-            }
-            const command = new GetObjectCommand(getObjectParams);
-            const url = await getSignedUrl(s3Client, command);
-            product.url = url;
-        }
+        // for (let product of products) {
+        //     const getObjectParams = {
+        //         Bucket: bucketName,
+        //         Key: product.image
+        //     }
+        //     const command = new GetObjectCommand(getObjectParams);
+        //     const url = await getSignedUrl(s3Client, command);
+        //     product.url = url;
+        // }
 
         res.send(products);
     } catch (error) {
@@ -294,7 +294,13 @@ app.post("/api/order", async (req, res) => {
             orderTotal: req.body.orderTotal,
             contactNo: req.body.contactNo,
         })
-        // res.redirect("http://localhost:3000/orders")
+
+        // reduce stock quantity of product
+        const findProduct = await Product.findOne({ _id: req.body.id })
+
+        // reduce stock quantity by order quanity
+        const updateProduct = await Product.updateOne({ _id: req.body.id }, { $set: { quantity: findProduct.productDetail.order_quantity - req.body.productDetail.order_quantity } });
+
         res.send({ msg: "ok" })
     } catch (err) {
         res.send(err)
