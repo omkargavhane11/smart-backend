@@ -296,7 +296,7 @@ app.post("/api/order", async (req, res) => {
         })
 
         // reduce stock quantity of product
-        const findProduct = await Product.findOne({ _id: req.body.id })
+        const findProduct = await Product.findOne({ _id: req.body.productDetail._id })
 
         // reduce stock quantity by order quanity
         const updateProduct = await Product.updateOne({ _id: req.body.id }, { $set: { quantity: findProduct.productDetail.order_quantity - req.body.productDetail.order_quantity } });
