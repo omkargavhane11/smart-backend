@@ -150,13 +150,13 @@ app.get('/products/:id', async (req, res) => {
     try {
         let single_product = await Product.findOne({ _id: req.params.id });
 
-        const getObjectParams = {
-            Bucket: bucketName,
-            Key: single_product.image
-        }
-        const command = new GetObjectCommand(getObjectParams);
-        const url = await getSignedUrl(s3Client, command);
-        single_product.url = url;
+        // const getObjectParams = {
+        //     Bucket: bucketName,
+        //     Key: single_product.image
+        // }
+        // const command = new GetObjectCommand(getObjectParams);
+        // const url = await getSignedUrl(s3Client, command);
+        // single_product.url = url;
 
         res.send(single_product);
     } catch (error) {
