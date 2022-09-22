@@ -189,7 +189,8 @@ app.post("/products", upload.single('image'), async (req, res) => {
             quantity: req.body.quantity,
             unit: req.body.unit,
             category: req.body.category,
-            subcategory: req.body.subcategory
+            subcategory: req.body.subcategory,
+            name: req.body.name
         })
 
         res.send(newProduct);
