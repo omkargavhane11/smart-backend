@@ -40,6 +40,10 @@ const productSchema = new mongoose.Schema({
     subcategory: {
         type: String,
         default: null
+    },
+    color: {
+        type: String,
+        default: null
     }
 },
     { timestamps: true }
