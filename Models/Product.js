@@ -44,6 +44,10 @@ const productSchema = new mongoose.Schema({
     color: {
         type: String,
         default: null
+    },
+    brand: {
+        type: String,
+        default: null
     }
 },
     { timestamps: true }

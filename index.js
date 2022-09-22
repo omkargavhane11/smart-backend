@@ -10,7 +10,6 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Razorpay from "razorpay";
 import Order from './Models/Order.js';
 import User from "./Models/userModel.js";
-import { request } from 'http';
 
 // getting access to files in ".env" folder
 dotenv.config();
@@ -185,7 +184,15 @@ app.post("/products", upload.single('image'), async (req, res) => {
 
         const newProduct = await Product.create({
             image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
-            ...req.body
+            description: req.body.description,
+            price: req.body.price,
+            quantity: req.body.quantity,
+            unit: req.body.unit,
+            category: req.body.category,
+            subcategory: req.body.subcategory,
+            name: req.body.name,
+            color: req.body.color,
+            brand: req.body.brand,
         })
 
         res.send(newProduct);
