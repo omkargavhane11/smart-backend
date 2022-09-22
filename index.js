@@ -6,7 +6,7 @@ import multer from "multer";
 import crypto from "crypto";
 import Product from "./Models/Product.js";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+// import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Razorpay from "razorpay";
 import Order from './Models/Order.js';
 import User from "./Models/userModel.js";
@@ -137,7 +137,11 @@ app.get('/products', async (req, res) => {
         //     product.url = url;
         // }
 
-        res.send(products);
+        const colorFilter = await Product.aggregate([{ $group: { _id: "$color" } }]);
+        const brandFilter = await Product.aggregate([{ $group: { _id: "$brand" } }]);
+
+
+        res.send({ productList: products, colorFilter, brandFilter });
     } catch (error) {
         res.send({ error: error.message })
     }
