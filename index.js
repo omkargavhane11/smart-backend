@@ -201,7 +201,7 @@ app.post("/products", upload.single('image'), async (req, res) => {
         }
 
         const command = new PutObjectCommand(params);
-        await s3Client.send(command)
+        await s3Client.send(command);
 
         const newProduct = await Product.create({
             image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
@@ -222,6 +222,40 @@ app.post("/products", upload.single('image'), async (req, res) => {
     }
 
 })
+
+
+// edit product details
+app.put("/products/:productId", upload.single('image'), async (req, res) => {
+    try {
+        const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex');
+        const uniqueFileName = generateFileName();
+
+        const params = {
+            Bucket: bucketName,
+            Key: uniqueFileName,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype
+        }
+
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+
+        const newData = {
+            image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
+            ...req.body
+        }
+
+        const update = await Product.updateOne({ _id: req.params.id }, {
+            $set: newData
+        })
+        res.send({ update })
+
+    } catch (error) {
+        res.send({ error: error.message });
+    }
+})
+
+
 
 // delete product
 app.delete("/products/:id", async (req, res) => {
