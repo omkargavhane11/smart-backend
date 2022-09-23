@@ -245,14 +245,19 @@ app.put("/products/:productId", upload.single('image'), async (req, res) => {
                 image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
                 ...req.body
             }
+            const update = await Product.updateOne({ _id: req.params.id }, {
+                $set: newData
+            })
+            res.send({ update })
         } else {
             const newData = { ...req.body }
+            const update = await Product.updateOne({ _id: req.params.id }, {
+                $set: newData
+            })
+            res.send({ update })
         }
 
-        const update = await Product.updateOne({ _id: req.params.id }, {
-            $set: newData
-        })
-        res.send({ update })
+
 
     } catch (error) {
         res.send({ error: error.message });
