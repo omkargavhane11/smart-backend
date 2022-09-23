@@ -10,6 +10,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import Razorpay from "razorpay";
 import Order from './Models/Order.js';
 import User from "./Models/userModel.js";
+import { log } from 'console';
 
 // getting access to files in ".env" folder
 dotenv.config();
@@ -142,6 +143,21 @@ app.get('/products', async (req, res) => {
 
 
         res.send({ productList: products, colorFilter, brandFilter });
+    } catch (error) {
+        res.send({ error: error.message })
+    }
+})
+
+// get subcategory products
+app.get('/products/subcategory/:subcategory', async (req, res) => {
+    try {
+        let products = await Product.find({ subcategory: req.params.subcategory });
+
+        const colorFilter = await Product.aggregate([{ $group: { _id: "$color" } }]);
+        const brandFilter = await Product.aggregate([{ $group: { _id: "$brand" } }]);
+
+        products.length ? res.send({ productList: products, colorFilter, brandFilter }) : res.send("no results");
+        // console.log(products.length);
     } catch (error) {
         res.send({ error: error.message })
     }
