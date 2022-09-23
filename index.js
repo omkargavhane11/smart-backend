@@ -230,19 +230,23 @@ app.put("/products/:productId", upload.single('image'), async (req, res) => {
         const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex');
         const uniqueFileName = generateFileName();
 
-        const params = {
-            Bucket: bucketName,
-            Key: uniqueFileName,
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype
-        }
+        if (req.file) {
+            const params = {
+                Bucket: bucketName,
+                Key: uniqueFileName,
+                Body: req.file.buffer,
+                ContentType: req.file.mimetype
+            }
 
-        const command = new PutObjectCommand(params);
-        await s3Client.send(command);
+            const command = new PutObjectCommand(params);
+            await s3Client.send(command);
 
-        const newData = {
-            image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
-            ...req.body
+            const newData = {
+                image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
+                ...req.body
+            }
+        } else {
+            const newData = { ...req.body }
         }
 
         const update = await Product.updateOne({ _id: req.params.id }, {
