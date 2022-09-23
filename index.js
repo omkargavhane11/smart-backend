@@ -412,6 +412,16 @@ app.get("/api/order/:id", async (req, res) => {
     }
 })
 
+// update order
+app.put("/api/order/:orderid", async (req, res) => {
+    try {
+        const updateOrder = await Order.updateOne({ _id: req.params.orderid }, { $set: req.body });
+        res.send({ msg: "success" })
+    } catch (err) {
+        res.send(err)
+    }
+})
+
 
 
 
