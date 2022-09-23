@@ -11,6 +11,7 @@ import Razorpay from "razorpay";
 import Order from './Models/Order.js';
 import User from "./Models/userModel.js";
 import { log } from 'console';
+import { request } from 'http';
 
 // getting access to files in ".env" folder
 dotenv.config();
@@ -242,6 +243,21 @@ app.delete("/products/:id", async (req, res) => {
     }
 
 })
+
+
+app.get("/dashboard", async (req, res) => {
+    try {
+        const orders = await Order.find().count();
+        const sales = await Order.aggregate([{ $group: { _id: 0, sum: { $sum: "$orderTotal" } } }]);
+        const openOrder = await Order.find({ status: "Generated" }).count();
+
+
+        res.send({ orders, sales: sales[0].sum, openOrder: openOrder });
+    } catch (error) {
+        res.send({ error: error.message });
+    }
+})
+
 
 
 // ₹₹₹₹₹₹₹₹₹ 
