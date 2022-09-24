@@ -53,7 +53,6 @@ router.get('/', async (req, res) => {
 
 
 // get subcategory products
-
 router.get('/subcategory/:subcategory', async (req, res) => {
     try {
         let products = await Product.find({ subcategory: req.params.subcategory });
@@ -63,11 +62,11 @@ router.get('/subcategory/:subcategory', async (req, res) => {
 
         products.forEach((product) => {
             if (!colorFilter.includes(product.color)) {
-                colorFilter.push(product.color);
+                colorFilter.push(product.color.toLowerCase());
             }
 
             if (!brandFilter.includes(product.brand)) {
-                brandFilter.push(product.brand);
+                brandFilter.push(product.brand.toLowerCase());
             }
         });
 
@@ -200,7 +199,7 @@ router.delete("/:id", async (req, res) => {
 
 })
 
-
+// get products from user input keywords
 router.get("/search/:search", async (req, res) => {
     const params = req.params.search;
     const input_keyword_array = params.split(" ");
@@ -221,7 +220,7 @@ router.get("/search/:search", async (req, res) => {
         }
         one = one.join("").toLowerCase();
 
-        // this keywords are tend to added with "s" and "'" , that's why they are kept in the list. This improves search performance output
+        // Keywords inside below array are tend to be added with "s" and "'" , that's why they are kept in the list. Removing those from both user input keyword and product deatils keyword while matching and comparing improves search result.
         let common_keywors = ["mens", "womens", "kids", "females", "males", "girls", "boys"]
 
         if (common_keywors.includes(one)) {
@@ -274,11 +273,11 @@ router.get("/search/:search", async (req, res) => {
 
         search_result.forEach((product) => {
             if (!colorFilter.includes(product.color)) {
-                colorFilter.push(product.color);
+                colorFilter.push(product.color.toLowerCase());
             }
 
             if (!brandFilter.includes(product.brand)) {
-                brandFilter.push(product.brand);
+                brandFilter.push(product.brand.toLowerCase());
             }
         });
 
