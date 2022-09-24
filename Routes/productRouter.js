@@ -221,7 +221,10 @@ router.get("/search/:search", async (req, res) => {
         }
         one = one.join("").toLowerCase();
 
-        if (one === "mens" || "womens" || "kids" || "females" || "males" || "girls" || "boys") {
+        // this keywords are tend to added with "s" and "'" , that's why they are kept in the list. This improves search performance output
+        let common_keywors = ["mens", "womens", "kids", "females", "males", "girls", "boys"]
+
+        if (common_keywors.includes(one)) {
             one = one.split("");
             let index = Number(one.length) - 1;
             one.splice(index, 1);
