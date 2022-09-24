@@ -220,6 +220,15 @@ router.get("/search/:search", async (req, res) => {
             one = one;
         }
         one = one.join("").toLowerCase();
+
+        if (one === "mens" || "womens" || "kids" || "females" || "males" || "girls" || "boys") {
+            one = one.split("");
+            let index = Number(one.length) - 1;
+            one.splice(index, 1);
+            one = one.join("");
+            return one;
+        }
+
         return one;
     }
 
@@ -257,10 +266,25 @@ router.get("/search/:search", async (req, res) => {
             if (matched) search_result.push(item);
         })
 
-        res.send(search_result);
+        let colorFilter = [];
+        let brandFilter = [];
+
+        search_result.forEach((product) => {
+            if (!colorFilter.includes(product.color)) {
+                colorFilter.push(product.color);
+            }
+
+            if (!brandFilter.includes(product.brand)) {
+                brandFilter.push(product.brand);
+            }
+        });
+
+        // search_result.length ? res.send({ productList: search_result, colorFilter, brandFilter }) : res.send("no results");
+
+        res.send(search_result)
 
     } catch (error) {
-        res.send(error.message);
+        res.send({ error: error.message });
     }
 })
 
