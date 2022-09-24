@@ -4,6 +4,7 @@ import Product from "../Models/Product.js";
 import multer from "multer";
 import crypto from "crypto";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { appendFile } from "fs";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const storage = multer.memoryStorage()
@@ -52,15 +53,26 @@ router.get('/', async (req, res) => {
 
 
 // get subcategory products
+
 router.get('/subcategory/:subcategory', async (req, res) => {
     try {
         let products = await Product.find({ subcategory: req.params.subcategory });
 
-        const colorFilter = await Product.aggregate([{ $group: { _id: "$color" } }]);
-        const brandFilter = await Product.aggregate([{ $group: { _id: "$brand" } }]);
+        let colorFilter = [];
+        let brandFilter = [];
+
+        products.forEach((product) => {
+            if (!colorFilter.includes(product.color)) {
+                colorFilter.push(product.color);
+            }
+
+            if (!brandFilter.includes(product.brand)) {
+                brandFilter.push(product.brand);
+            }
+        });
 
         products.length ? res.send({ productList: products, colorFilter, brandFilter }) : res.send("no results");
-        // console.log(products.length);
+        // console.log(products);
     } catch (error) {
         res.send({ error: error.message })
     }
@@ -186,6 +198,70 @@ router.delete("/:id", async (req, res) => {
         res.send({ error: error.message });
     }
 
+})
+
+
+router.get("/search/:search", async (req, res) => {
+    const params = req.params.search;
+    const input_keyword_array = params.split(" ");
+
+    function format(str) {
+        let one = str.split("");
+
+        while (one.includes("-") || one.includes("'")) {
+
+            if (one.includes("-")) {
+                let index = one.indexOf("-");
+                one.splice(index, 1);
+            } else if (one.includes("'")) {
+                let index = one.indexOf("'");
+                one.splice(index, 1);
+            }
+            one = one;
+        }
+        one = one.join("").toLowerCase();
+        return one;
+    }
+
+    try {
+        const data = await Product.find();
+
+        let search_result = [];
+
+        data.forEach((item) => {
+            let p_name = item.name.split(" ");
+            let p_description = item.description.split(" ");
+            let p_brand = item.brand.split(" ");
+            let p_category = item.category.split(" ");
+            let p_subcategory = item.subcategory.split(" ");
+            let p_color = item.color.split(" ");
+
+            let master = [...p_name, ...p_description, ...p_brand, ...p_category, ...p_subcategory, ...p_color];
+
+            let matched = true;
+            for (let i = 0; i < input_keyword_array.length; i++) {
+                let inner_match = false;
+
+                for (let j = 0; j < master.length; j++) {
+                    let user_key = format(input_keyword_array[i]);
+                    let product_key = format(master[j]);
+
+                    if (product_key === user_key) {
+                        inner_match = true;
+                    }
+                }
+                if (inner_match !== true) {
+                    matched = false;
+                }
+            }
+            if (matched) search_result.push(item);
+        })
+
+        res.send(search_result);
+
+    } catch (error) {
+        res.send(error.message);
+    }
 })
 
 
