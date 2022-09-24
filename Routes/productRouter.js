@@ -2,6 +2,7 @@ import express from "express";
 const router = express.Router();
 import Product from "../Models/Product.js";
 import multer from "multer";
+import crypto from "crypto";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
