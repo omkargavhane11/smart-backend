@@ -386,7 +386,7 @@ app.post("/api/order", async (req, res) => {
 
         res.send({ msg: "ok" })
     } catch (err) {
-        res.send(err)
+        res.send({ msg: err.message })
     }
 })
 
@@ -398,7 +398,7 @@ app.get("/api/order", async (req, res) => {
         res.send(userOrders)
         // res.redirect("http://localhost:3000/orders")
     } catch (err) {
-        res.send(err)
+        res.send({ msg: err.message })
     }
 })
 
@@ -408,7 +408,7 @@ app.get("/api/order/:id", async (req, res) => {
         const userOrders = await Order.find({ user: req.params.id });
         res.send(userOrders)
     } catch (err) {
-        res.send(err)
+        res.send({ msg: err.message })
     }
 })
 
@@ -418,7 +418,7 @@ app.put("/api/order/:orderid", async (req, res) => {
         const updateOrder = await Order.updateOne({ _id: req.params.orderid }, { $set: req.body });
         res.send({ msg: "success" })
     } catch (err) {
-        res.send(err)
+        res.send({ msg: err.message })
     }
 })
 
