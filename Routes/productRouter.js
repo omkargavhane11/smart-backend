@@ -282,9 +282,7 @@ router.get("/search/:search", async (req, res) => {
             }
         });
 
-        // search_result.length ? res.send({ productList: search_result, colorFilter, brandFilter }) : res.send("no results");
-
-        res.send(search_result)
+        search_result.length ? res.send({ productList: search_result, colorFilter, brandFilter }) : res.send("no results");
 
     } catch (error) {
         res.send({ error: error.message });
