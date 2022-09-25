@@ -53,7 +53,7 @@ router.put("/:orderid", async (req, res) => {
         const updateOrder = await Order.updateOne({ _id: req.params.orderid }, { $set: req.body });
         res.send({ msg: "success" })
     } catch (err) {
-        res.send({ msg: err.message })
+        res.send({ msg: "failed", error: err.message })
     }
 })
 
