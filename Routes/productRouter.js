@@ -60,7 +60,7 @@ router.get('/subcategory/:subcategory', async (req, res) => {
         let colorFilter = [];
         let brandFilter = [];
 
-        products.forEach((product) => {
+        products?.forEach((product) => {
             if (!colorFilter.includes(product.color)) {
                 colorFilter.push(product.color.toLowerCase());
             }
@@ -70,7 +70,7 @@ router.get('/subcategory/:subcategory', async (req, res) => {
             }
         });
 
-        products.length ? res.send({ productList: products, colorFilter, brandFilter }) : res.send("no results");
+        res.send({ productList: products, colorFilter, brandFilter });
         // console.log(products);
     } catch (error) {
         res.send({ error: error.message })
