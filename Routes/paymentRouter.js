@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 import crypto from "crypto";
 import Razorpay from "razorpay";
-
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -61,16 +61,15 @@ router.post("/paymentverification", async (req, res) => {
         //     }
         // });
 
-        res.redirect(
-            `http://localhost:3000/paymentsuccess?orderdetail=${razorpay_order_id}&&paymentdetail=${razorpay_payment_id}`
-        );
-        // res.send({ razorpay_order_id, success: true, })
+        // res.redirect(
+        //     `http://localhost:3000/paymentsuccess?orderdetail=${razorpay_order_id}&&paymentdetail=${razorpay_payment_id}`
+        // );
+        res.send({ razorpay_order_id,razorpay_payment_id, success: true, })
     } else {
         res.status(400).json({
             success: false,
         });
     }
-
 })
 
 

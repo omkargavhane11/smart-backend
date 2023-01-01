@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+const dpSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -20,26 +20,21 @@ const userSchema = new mongoose.Schema({
         max: 20
     },
     address: {
-        type: String,
+        type: Object,
         required: true,
     },
     contactNo: {
         type: Number,
         required: true
     },
-    isAdmin: {
-        type: Boolean,
-        default: false
-    }, 
     userType:{
         type:String,
         required:true
     }
-
 },
     { timestamps: true }
 );
 
 
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model("DeliveryPartner", dpSchema);

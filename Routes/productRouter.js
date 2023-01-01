@@ -3,12 +3,15 @@ const router = express.Router();
 import Product from "../Models/Product.js";
 import multer from "multer";
 import crypto from "crypto";
+import dotenv from "dotenv";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { appendFile } from "fs";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
+
+dotenv.config();
 
 // s3 bucket details
 const bucketName = process.env.BUCKET_NAME;
@@ -29,7 +32,7 @@ const s3Client = new S3Client({
 // get all products
 router.get('/', async (req, res) => {
     try {
-        let products = await Product.find();
+        let products = req.query ? await Product.find({...req.query, quantity:{$gt:0}}) : await Product.find({quantity:{$gt:0}});
 
         // for (let product of products) {
         //     const getObjectParams = {
@@ -41,8 +44,23 @@ router.get('/', async (req, res) => {
         //     product.url = url;
         // }
 
-        const colorFilter = await Product.aggregate([{ $group: { _id: "$color" } }]);
-        const brandFilter = await Product.aggregate([{ $group: { _id: "$brand" } }]);
+        const colorFilter = await Product.aggregate([{$match:{quantity:{$gt:0}}},{ $group: { _id: "$color" } }]);
+        const brandFilter = await Product.aggregate([{$match:{quantity:{$gt:0}}},{ $group: { _id: "$brand" } }]);
+
+
+        res.send({ productList: products, colorFilter, brandFilter });
+    } catch (error) {
+        res.send({ error: error.message })
+    }
+})
+
+// get all products
+router.get('/inventory/:merchantId', async (req, res) => {
+    try {
+        let products = await Product.find({merchantId:req.params.merchantId});
+
+        const colorFilter = await Product.aggregate([{$match:{merchantId:req.params.merchantId}},{ $group: { _id: "$color" } }]);
+        const brandFilter = await Product.aggregate([{$match:{merchantId:req.params.merchantId}},{ $group: { _id: "$brand" } }]);
 
 
         res.send({ productList: products, colorFilter, brandFilter });
@@ -55,12 +73,12 @@ router.get('/', async (req, res) => {
 // get subcategory products
 router.get('/subcategory/:subcategory', async (req, res) => {
     try {
-        let products = await Product.find({ subcategory: req.params.subcategory });
+        let products = await Product.find({ subcategory: req.params.subcategory, quantity:{$gt:0} });
 
         let colorFilter = [];
         let brandFilter = [];
 
-        products?.forEach((product) => {
+         products?.forEach((product) => {
             if (!colorFilter.includes(product.color)) {
                 colorFilter.push(product.color.toLowerCase());
             }
@@ -126,6 +144,7 @@ router.post("/", upload.single('image'), async (req, res) => {
             name: req.body.name,
             color: req.body.color,
             brand: req.body.brand,
+            merchantId:req.body.merchantId
         })
 
         res.send(newProduct);
@@ -157,23 +176,22 @@ router.put("/:productId", upload.single('image'), async (req, res) => {
                 image: `https://${bucketName}.s3.amazonaws.com/${uniqueFileName}`,
                 ...req.body
             }
-            const update = await Product.updateOne({ _id: req.params.id }, {
+            const update = await Product.updateOne({ _id: req.params.productId }, {
                 $set: newData
             })
             res.send({ update })
         } else {
-            const newData = { ...req.body }
-            const update = await Product.updateOne({ _id: req.params.id }, {
-                $set: newData
+            const update = await Product.updateOne({ _id: req.params.productId }, {
+                $set: req.body
             })
             res.send({ update })
+
+            // res.send({custom:req.body, productID:req.params.productId})
         }
-
-
-
     } catch (error) {
         res.send({ error: error.message });
     }
+
 })
 
 

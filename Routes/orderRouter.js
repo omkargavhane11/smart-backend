@@ -5,25 +5,30 @@ import Product from "../Models/Product.js";
 
 router.post("/", async (req, res) => {
     try {
-        const newOrder = await Order.create({
-            productDetail: req.body.productDetail,
-            deliveryAddress: req.body.deliveryAddress,
-            user: req.body.user,
-            orderTotal: req.body.orderTotal,
-            contactNo: req.body.contactNo,
-        })
+        const newOrder = await Order.create(req.body);
 
         // reduce stock quantity of product
-        const findProduct = await Product.findOne({ _id: req.body.productDetail._id })
+        const findProduct = await Product.findOne({ _id: req.body.productDetail._id });
+
+        const updated_quantity = findProduct.quantity - req.body.productDetail.order_quantity;
 
         // reduce stock quantity by order quanity
-        const updateProduct = await Product.updateOne({ _id: req.body.id }, { $set: { quantity: findProduct.productDetail.quantity - req.body.productDetail.order_quantity } });
+        const updateProduct = await Product.updateOne({ _id: req.body.productDetail._id }, { $set: { quantity: updated_quantity } });
 
-        res.send({ msg: "ok" })
+
+        if(updateProduct.modifiedCount === 1){
+            res.send({ msg: "ok" })
+        }else{
+            res.send({msg:"not ok"})
+        }
+
+        // console.log({findProduct,updated_quantity})
     } catch (err) {
-        res.send({ msg: err.message })
+        res.send({ error: err.message })
     }
 })
+
+
 
 // get all orders
 router.get("/", async (req, res) => {
@@ -49,11 +54,35 @@ router.get("/:id", async (req, res) => {
 
 // update order
 router.put("/:orderid", async (req, res) => {
+
+    const {orderLog, ...others} = req.body;
     try {
-        const updateOrder = await Order.updateOne({ _id: req.params.orderid }, { $set: req.body });
-        res.send({ msg: "success" })
+        const data = req.body.orderLog ?  await Order.updateOne({ _id: req.params.orderid },{$set: others},{$push:{orderLog:orderLog}}) : 
+            await Order.updateOne({ _id: req.params.orderid},{ $set: others });
+        
+        if(data.modifiedCount === 1){
+            res.send({ msg: "success" });
+        }else{
+            res.send({ msg: "failed" });
+        }
+
     } catch (err) {
         res.send({ msg: "failed", error: err.message })
+    }
+
+    // console.log( others)
+})
+
+
+// get orders which are ready to be dispatched
+router.get("/deliverypartner/first", async(req,res) => {
+    try {
+        const mydata = await Order.find({status:{$in:["Dispatched", "Out for delivery", "Delivered"]}});
+        const toPick = await Order.find({status:"Ready for dispatch"});
+
+        res.send([...mydata,...toPick]);
+    } catch (error) {
+        res.send({msg :"failed", error:error.message});
     }
 })
 

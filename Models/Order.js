@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+const { Schema } = mongoose;
 
 const orderSchema = new mongoose.Schema({
     productDetail: {
@@ -22,6 +23,10 @@ const orderSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    // paymentDetails:{
+    //     type:Object,
+    //     required: true
+    // },
     status: {
         type: String,
         default: "Generated"
@@ -33,6 +38,19 @@ const orderSchema = new mongoose.Schema({
     isCancelled: {
         type: Boolean,
         default: false,
+    },
+    orderFor:{
+        type:Object,
+        required:true
+    },
+    deliveryPartner:{
+        type: Schema.Types.ObjectId,
+        ref:"DeliveryPartner",
+        default:null
+    },
+    orderLog:{
+        type:[Object],
+        default:[]
     }
 
 
@@ -41,3 +59,33 @@ const orderSchema = new mongoose.Schema({
 )
 
 export default mongoose.model("Order", orderSchema);
+
+
+
+// const orderLog = [
+//     {
+//         status:"generated",
+//         location:"user_location",
+//         date:"",
+//     },
+//     {
+//         status:"ready for dispatch",
+//         location:"user_location",
+//         date:"",
+//     },
+//     {
+//         status:"dispatched",
+//         location:"user_location",
+//         date:"",
+//     },
+//     {
+//         status:"out for delivery",
+//         location:"user_location",
+//         date:"",
+//     },
+//     {
+//         status:"delivered",
+//         location:"user_location",
+//         date:"",
+//     },
+// ]

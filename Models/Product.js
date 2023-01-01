@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+const { Schema } = mongoose;
 
 const productSchema = new mongoose.Schema({
     name: {
@@ -48,6 +49,11 @@ const productSchema = new mongoose.Schema({
     brand: {
         type: String,
         default: null
+    },
+    merchantId:{
+        type: Schema.Types.ObjectId,
+        required:true,
+        ref:"Merchant"
     }
 },
     { timestamps: true }
